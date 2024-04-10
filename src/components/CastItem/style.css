@@ -1,0 +1,43 @@
+.movie-details-cast-item {
+    width: 15%;
+    height: 100%;
+    border-radius: 5px;
+    margin: 0.8%;
+    margin-bottom: 30px;
+}
+
+.movie-details-cast-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+.movie-details-cast-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c6cbd2;
+    margin-top: 5px;
+}
+
+.movie-details-cast-character {
+    font-size: 13px;
+    color: #aebed5;
+    margin-top: 5px;
+}
+
+@media screen and (max-width: 768px) {
+    .movie-details-cast-item {
+        width: 30%;
+        margin-bottom: 20px;
+    }
+    
+    .movie-details-cast-name {
+        font-size: 12px;
+    }
+
+    .movie-details-cast-character {
+        font-size: 11px;
+    }
+
+    
+}

@@ -1,0 +1,100 @@
+.popular-page-container {
+    margin-top: 8vh;
+    min-height: 92vh;
+    padding: 30px 6%;
+    background-color: #272B33;
+    width: 100%;
+}
+
+.popular-page-heading {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.popular-movies-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    list-style-type: none;
+    padding-left: 0px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.pagination-class {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    list-style-type: none;
+    align-self: flex-end;
+    padding-left: 0px;
+  }
+
+  .pagination-button {
+    margin: 0 5px;
+    padding: 5px 9px;
+    /* border: 1px solid #ccc; */
+    border: 1px solid #6B747D75;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+    color: #6B747D;
+  }
+  
+  .pagination-button:hover {
+    /* background-color: #f0f0f0; */
+    background-color: #6B747D20;
+    color: #6B747D;
+  }
+
+  .activePage {
+    background-color: #6B747D;
+    color: #fff;
+  }
+
+  .endPage {
+    background-color: #fbf6f6;
+    border: 1px solid #ccc;
+    color: #9e9999;
+    cursor: not-allowed;
+  }
+
+  .pagination-dots {
+    font-weight: 600;
+    color: #6B747D;
+  }
+
+  .loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    width: 100%;
+  }
+
+  .search-text {
+    font-style: italic;
+    font-weight: 500;
+    margin-left: 10px;
+  }
+
+@media screen and (max-width: 768px) {
+    .popular-page-container {
+        padding: 20px 5%;
+    }
+
+    .popular-page-heading {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .pagination-button {
+        padding: 3px 6px;
+
+    }
+    
+}

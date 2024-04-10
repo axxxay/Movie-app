@@ -1,0 +1,13 @@
+.search-input-con {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .search-input-con {
+        display: flex!important;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+}
