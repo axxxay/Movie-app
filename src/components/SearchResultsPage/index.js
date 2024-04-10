@@ -6,6 +6,13 @@ import MovieItem from '../MovieItem';
 import { Oval } from 'react-loader-spinner';
 import SearchInput from '../SearchInput';
 
+const apiStatusConstants = {
+    initial: 'INITIAL',
+    loading: 'LOADING',
+    success: 'SUCCESS',
+    failure: 'FAILURE'
+}
+
 const SearchResultsPage = () => {
 
     const initialPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
@@ -15,12 +22,12 @@ const SearchResultsPage = () => {
     const [searchMovies, setSearchMovies] = useState([])
     const [page, setPage] = useState(initialPage);
     const [totalItems, setTotalItems] = useState(0);
-    const [loading, setLoading] = useState(false);
+    const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial)
 
     const {query} = useParams();
 
     useEffect(() => {
-        fetchPopularMovies()
+        fetchSearchMovies()
         updateUrl(page);
     }, [page, query])
 
@@ -69,14 +76,29 @@ const SearchResultsPage = () => {
         window.history.pushState({}, '', url);
     };
 
-    const fetchPopularMovies = async () => {
-        setLoading(true)
+    const fetchSearchMovies = async () => {
+        setApiStatus(apiStatusConstants.loading)
         const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_MOVIE_API_KEY}&language=en-US&query=${search}&page=${page}`
-        const response = await fetch(url)
-        const data = await response.json()
-        setSearchMovies(data.results)
-        setTotalItems(data.total_pages)
-        setLoading(false)
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.REACT_APP_MOVIE_ACCESS_TOKEN}`
+            }
+        }
+        try {
+            const response = await fetch(url, options)
+            const data = await response.json()
+            if(response.ok) {
+                setSearchMovies(data.results)
+                setTotalItems(data.total_pages)
+                setApiStatus(apiStatusConstants.success)
+            } else {
+                setApiStatus(apiStatusConstants.failure)
+            }
+        } catch (error) {
+            setApiStatus(apiStatusConstants.failure)
+        }
     }
 
     const renderLoader = () => {
@@ -95,26 +117,52 @@ const SearchResultsPage = () => {
         )
     }
 
+    const renderFailure = () => {
+        return (
+            <div className='failure-container'>
+                <h1 className='failure-text'>Failed to fetch data</h1>
+                <button className='retry-button' onClick={fetchSearchMovies}>Retry</button>
+            </div>
+        )
+    }
+
+    const renderMovies = () => {
+        return setSearchMovies.map((movie) => {
+            return <MovieItem key={movie.id} movie={movie} />
+        })
+    }
+
+    const renderSwitchCase = () => {
+        switch(apiStatus) {
+            case apiStatusConstants.loading:
+                return renderLoader()
+            case apiStatusConstants.failure:
+                return renderFailure()
+            case apiStatusConstants.success:
+                return renderMovies()
+            default:
+                return null
+        }
+    }
+
     return (
         <div className='popular-page-container'>
             <h1 className='popular-page-heading'>Search results for: <span className='search-text'>`{search}`</span></h1>
             <SearchInput />
             <ul className='popular-movies-list'>
-                {   loading ? renderLoader() :
-                    searchMovies.map((movie) => {
-                        return <MovieItem key={movie.id} movie={movie} />
-                    })
-                }
+                {renderSwitchCase()}
             </ul>
-            <Pagination
-                current={page}
-                total={totalItems}
-                pageSize={1}
-                onChange={handlePageChange}
-                className="pagination-class"
-                itemRender={itemRender}
-                showSizeChanger
-            />
+            {
+                totalItems > 1 && <Pagination
+                    current={page}
+                    total={totalItems}
+                    pageSize={1}
+                    onChange={handlePageChange}
+                    className="pagination-class"
+                    itemRender={itemRender}
+                    showSizeChanger
+                />
+            }
         </div>
     )
 }

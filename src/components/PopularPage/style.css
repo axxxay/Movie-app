@@ -76,10 +76,35 @@
     width: 100%;
   }
 
+  .failure-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 70vh;
+    width: 100%;
+  }
+
+  .failure-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+
   .search-text {
     font-style: italic;
     font-weight: 500;
     margin-left: 10px;
+  }
+
+  .retry-button {
+    padding: 10px 20px;
+    background-color: #6B747D;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
   }
 
 @media screen and (max-width: 768px) {

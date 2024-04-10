@@ -6,12 +6,18 @@ import CastItem from '../CastItem'
 import './style.css'
 import SearchInput from '../SearchInput'
 
+const apiStatusConstants = {
+    initial: 'INITIAL',
+    loading: 'LOADING',
+    success: 'SUCCESS',
+    failure: 'FAILURE'
+}
 
 const MovieDetailsPage = () => {
 
     const [movieDetails, setMovieDetails] = useState({})
     const [cast, setCast] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial)
 
     useEffect(() => {
         fetchMovieDetails()
@@ -20,7 +26,7 @@ const MovieDetailsPage = () => {
     const {id} = useParams()
 
     const fetchMovieDetails = async () => {
-        setLoading(true)
+        setApiStatus(apiStatusConstants.loading)
         const options = {
             method: 'GET',
             headers: {
@@ -34,23 +40,16 @@ const MovieDetailsPage = () => {
             const data = await response.json()
             if(response.ok === true) {
                 setMovieDetails(data)
-            } else {
-                alert("failed to fetch")
             }
             const castUrl = `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${process.env.REACT_APP_MOVIE_API_KEY}&language=en-US`
             const castResponse = await fetch(castUrl, options)
             const castData = await castResponse.json()
-            if(response.ok === true) {
+            if(response.ok) {
                 setCast(castData.cast)
-            } else {
-                alert("failed to fetch")
             }
-            console.log(castData)
-            console.log(data)
+            setApiStatus(apiStatusConstants.success)
         } catch (error) {
-            alert('An error occurred while fetching the data: ' + error.message)
-        } finally {
-            setLoading(false)
+            setApiStatus(apiStatusConstants.failure)
         }
     }
 
@@ -73,6 +72,15 @@ const MovieDetailsPage = () => {
                     wrapperStyle={{}}
                     wrapperClass=""
                 />
+            </div>
+        )
+    }
+
+    const renderFailure = () => {
+        return (
+            <div className='failure-container'>
+                <h1 className='failure-text'>Failed to fetch data</h1>
+                <button className='retry-button' onClick={fetchMovieDetails}>Retry</button>
             </div>
         )
     }
@@ -109,10 +117,23 @@ const MovieDetailsPage = () => {
         </>
     )
 
+    const renderSwitchCase = () => {
+        switch(apiStatus) {
+            case apiStatusConstants.loading:
+                return renderLoader()
+            case apiStatusConstants.failure:
+                return renderFailure()
+            case apiStatusConstants.success:
+                return renderMovieDetails()
+            default:
+                return null
+        }
+    }
+
     return (
         <div className='movie-details-page-container'>
             <SearchInput />
-            {loading ? renderLoader() : renderMovieDetails()}
+            {renderSwitchCase()}
         </div>
     )
 }

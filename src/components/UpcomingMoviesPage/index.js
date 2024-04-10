@@ -4,6 +4,13 @@ import MovieItem from '../MovieItem';
 import { Oval } from 'react-loader-spinner';
 import SearchInput from '../SearchInput';
 
+const apiStatusConstants = {
+    initial: 'INITIAL',
+    loading: 'LOADING',
+    success: 'SUCCESS',
+    failure: 'FAILURE'
+}
+
 const UpcomingMoviesPage = () => {
 
     const initialPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
@@ -11,11 +18,12 @@ const UpcomingMoviesPage = () => {
     const [popularMovies, setPopularMovies] = useState([])
     const [page, setPage] = useState(initialPage);
     const [totalItems, setTotalItems] = useState(0);
-    const [loading, setLoading] = useState(false);
+    const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial)
+
 
 
     useEffect(() => {
-        fetchPopularMovies()
+        fetchUpcomingMovies()
         updateUrl(page);
     }, [page])
 
@@ -62,8 +70,8 @@ const UpcomingMoviesPage = () => {
         window.history.pushState({}, '', url);
     };
 
-    const fetchPopularMovies = async () => {
-        setLoading(true)
+    const fetchUpcomingMovies = async () => {
+        setApiStatus(apiStatusConstants.loading)
         const url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${process.env.REACT_APP_MOVIE_API_KEY}&language=en-US&page=${page}`
         const options = {
             method: 'GET',
@@ -75,16 +83,15 @@ const UpcomingMoviesPage = () => {
         try {
             const response = await fetch(url, options)
             const data = await response.json()
-            if(response.ok === true) {
+            if(response.ok) {
                 setPopularMovies(data.results)
                 setTotalItems(data.total_pages)
+                setApiStatus(apiStatusConstants.success)
             } else {
-                alert('failed to fetch')
+                setApiStatus(apiStatusConstants.failure)
             }
-        } catch(error) {
-            alert('An error occurred while fetching the data: ' + error.message)
-        } finally {
-            setLoading(false)
+        } catch (error) {
+            setApiStatus(apiStatusConstants.failure)
         }
     }
 
@@ -104,26 +111,52 @@ const UpcomingMoviesPage = () => {
         )
     }
 
+    const renderFailure = () => {
+        return (
+            <div className='failure-container'>
+                <h1 className='failure-text'>Failed to fetch data</h1>
+                <button className='retry-button' onClick={fetchUpcomingMovies}>Retry</button>
+            </div>
+        )
+    }
+
+    const renderMovies = () => {
+        return popularMovies.map((movie) => {
+            return <MovieItem key={movie.id} movie={movie} />
+        })
+    }
+
+    const renderSwitchCase = () => {
+        switch(apiStatus) {
+            case apiStatusConstants.loading:
+                return renderLoader()
+            case apiStatusConstants.failure:
+                return renderFailure()
+            case apiStatusConstants.success:
+                return renderMovies()
+            default:
+                return null
+        }
+    }
+
     return (
         <div className='popular-page-container'>
             <h1 className='popular-page-heading'>Upcoming Movies</h1>
             <SearchInput />
             <ul className='popular-movies-list'>
-                {   loading ? renderLoader() :
-                    popularMovies.map((movie) => {
-                        return <MovieItem key={movie.id} movie={movie} />
-                    })
-                }
+                {renderSwitchCase()}
             </ul>
-            <Pagination
-                current={page}
-                total={60}
-                pageSize={1}
-                onChange={handlePageChange}
-                className="pagination-class"
-                itemRender={itemRender}
-                showSizeChanger
-            />
+            {
+                totalItems > 1 && <Pagination
+                    current={page}
+                    total={totalItems}
+                    pageSize={1}
+                    onChange={handlePageChange}
+                    className="pagination-class"
+                    itemRender={itemRender}
+                    showSizeChanger
+                />
+            }
         </div>
     )
 }

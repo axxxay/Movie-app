@@ -5,6 +5,12 @@ import { Oval } from 'react-loader-spinner';
 import SearchInput from '../SearchInput';
 import './style.css'
 
+const apiStatusConstants = {
+    initial: 'INITIAL',
+    loading: 'LOADING',
+    success: 'SUCCESS',
+    failure: 'FAILURE'
+}
 
 const PopularPage = () => {
 
@@ -13,7 +19,7 @@ const PopularPage = () => {
     const [popularMovies, setPopularMovies] = useState([])
     const [page, setPage] = useState(initialPage);
     const [totalItems, setTotalItems] = useState(0);
-    const [loading, setLoading] = useState(false);
+    const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial)
 
 
     useEffect(() => {
@@ -65,7 +71,7 @@ const PopularPage = () => {
     };
 
     const fetchPopularMovies = async () => {
-        setLoading(true)
+        setApiStatus(apiStatusConstants.loading)
         const url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.REACT_APP_MOVIE_API_KEY}&language=en-US&page=${page}`
         const options = {
             method: 'GET',
@@ -80,13 +86,12 @@ const PopularPage = () => {
             if(response.ok) {
                 setPopularMovies(data.results)
                 setTotalItems(data.total_pages)
+                setApiStatus(apiStatusConstants.success)
             } else {
-                alert('Failed to fetch')
+                setApiStatus(apiStatusConstants.failure)                
             }
         } catch (error) {
-            alert('An error occurred while fetching the data: ' + error.message)
-        } finally {
-            setLoading(false)
+            setApiStatus(apiStatusConstants.failure)
         }
     }
 
@@ -106,26 +111,52 @@ const PopularPage = () => {
         )
     }
 
+    const renderFailure = () => {
+        return (
+            <div className='failure-container'>
+                <h1 className='failure-text'>Failed to fetch data</h1>
+                <button className='retry-button' onClick={fetchPopularMovies}>Retry</button>
+            </div>
+        )
+    }
+
+    const renderMovies = () => {
+        return popularMovies.map((movie) => {
+            return <MovieItem key={movie.id} movie={movie} />
+        })
+    }
+
+    const renderSwitchCase = () => {
+        switch(apiStatus) {
+            case apiStatusConstants.loading:
+                return renderLoader()
+            case apiStatusConstants.failure:
+                return renderFailure()
+            case apiStatusConstants.success:
+                return renderMovies()
+            default:
+                return null
+        }
+    }
+
     return (
         <div className='popular-page-container'>
             <h1 className='popular-page-heading'>Popular Movies</h1>
             <SearchInput />
             <ul className='popular-movies-list'>
-                {   loading ? renderLoader() :
-                    popularMovies.map((movie) => {
-                        return <MovieItem key={movie.id} movie={movie} />
-                    })
-                }
+                {renderSwitchCase()}
             </ul>
-            <Pagination
-                current={page}
-                total={500}
-                pageSize={1}
-                onChange={handlePageChange}
-                className="pagination-class"
-                itemRender={itemRender}
-                showSizeChanger
-            />
+            {
+                totalItems > 1 && <Pagination
+                    current={page}
+                    total={totalItems}
+                    pageSize={1}
+                    onChange={handlePageChange}
+                    className="pagination-class"
+                    itemRender={itemRender}
+                    showSizeChanger
+                />
+            }
         </div>
     )
 }
