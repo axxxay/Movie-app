@@ -149,7 +149,7 @@ const PopularPage = () => {
             {
                 totalItems > 1 && <Pagination
                     current={page}
-                    total={totalItems}
+                    total={500}
                     pageSize={1}
                     onChange={handlePageChange}
                     className="pagination-class"

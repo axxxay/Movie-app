@@ -147,7 +147,7 @@ const SearchResultsPage = () => {
 
     return (
         <div className='popular-page-container'>
-            <h1 className='popular-page-heading'>Search results for: <span className='search-text'>`{search}`</span></h1>
+            <h1 className='popular-page-heading'>Search results for: <span className='search-text'>`{query}`</span></h1>
             <SearchInput />
             <ul className='popular-movies-list'>
                 {renderSwitchCase()}
