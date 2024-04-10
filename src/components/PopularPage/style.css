@@ -6,6 +6,18 @@
     width: 100%;
 }
 
+@keyframes colorChange {
+  0% { background: #000033; } /* Dark Blue */
+  25% { background: #330033; } /* Dark Violet */
+  50% { background: #000000; } /* Black */
+  75% { background: #330000; } /* Dark Red */
+  100% { background: #000033; } /* Dark Blue */
+}
+
+.popular-page-container {
+    animation: colorChange 10s infinite;
+}
+
 .popular-page-heading {
     color: #fff;
     font-size: 24px;
